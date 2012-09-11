@@ -241,24 +241,24 @@ class REST_Client {
         // No matter what type of request this is we always need the URI
         curl_setopt($curl_request, CURLOPT_URL, $uri);
 
-        // If this a POST request
-        if ($method === self::HTTP_POST) {
-            // Set this request up as a POST request
-            curl_setopt($curl_request, CURLOPT_POST, TRUE);
-        }
-
-        // If this is a PUT or POST request
-        if ($method === self::HTTP_PUT OR $method === self::HTTP_POST) {
-            // Set the post fields
-            curl_setopt($curl_request, CURLOPT_POSTFIELDS, $parameters);
-        }
-
-        // If this is a DELETE or PUT request
-        if ($method === self::HTTP_DELETE OR $method === self::HTTP_PUT) {
-            // Set the custom request option
-            curl_setopt($curl_request, CURLOPT_CUSTOMREQUEST, $method);
-        }
-
+        switch ($method) {
+            case self::HTTP_POST:
+               curl_setopt($curl_request, CURLOPT_POST, TRUE);
+                curl_setopt($curl_request, CURLOPT_POSTFIELDS, $parameters);
+                break;
+            case self::HTTP_PUT:
+                curl_setopt($curl_request, CURLOPT_PUT, TRUE);
+                curl_setopt($curl_request, CURLOPT_POSTFIELDS, $parameters);
+                break;
+            case self::HTTP_GET:
+                curl_setopt($curl_request, CURLOPT_HTTPGET, TRUE);
+                break;
+            case self::HTTP_DELETE:
+            default:
+                // also potentially support more obscure request methods, CONNECT, HEAD, etc
+                curl_setopt($curl_request, CURLOPT_CUSTOMREQUEST, $method);
+                break;
+        }        
         // Make sure that we get data back when we call exec
         curl_setopt($curl_request, CURLOPT_RETURNTRANSFER, TRUE);
 
